@@ -1,0 +1,32 @@
+Package: MHVG2MTS
+Title: Multilayer Horizontal Visibility Graphs to Multivariate Time Series Analysis
+Version: 0.1.0
+Authors@R: person("David", "Anahory", email = "davidanahory@gmail.com", role = c("aut", "cre"))
+Description: An implementation of the paper "MHVG2MTS: Multilayer Horizontal
+    Visibility Graphs to Multivariate Time Series Analysis". This package
+    provides tools to transform multivariate time series into multilayer
+    horizontal visibility graphs and extract features from them.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Imports:
+    ggplot2,
+    reshape2,
+    forecast,
+    ggfortify,
+    dplyr,
+    kableExtra,
+    grid,
+    FactoMineR,
+    factoextra,
+    corrplot,
+    cluster,
+    aricode,
+    infotheo,
+    mAr,
+    ccgarch,
+    mvtnorm
+Suggests:
+    knitr,
+    rmarkdown

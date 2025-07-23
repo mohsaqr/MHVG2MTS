@@ -1,0 +1,385 @@
+---
+title: "Introduction to MHVG2MTS"
+author: "Jules"
+date: "2025-07-23"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to MHVG2MTS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+
+``` r
+library(MHVG2MTS)
+#> Error in library(MHVG2MTS): there is no package called 'MHVG2MTS'
+```
+
+## Reading Data
+
+The `MHVG2MTS` package provides two functions for reading data: `read_measures` and `read_measure_set`.
+
+### `read_measures`
+
+This function reads a single file of measures.
+
+
+``` r
+# Example usage:
+# Assuming you have a file named "my_class__layer1_my_measure.txt" in the "data" directory
+# measures <- read_measures(dir = "data", class_name = "my_class", tmeasure_name = "my_measure", layer_A = "layer1")
+```
+
+### `read_measure_set`
+
+This function reads a set of files of measures.
+
+
+``` r
+# Example usage:
+# Assuming you have files named "my_class_1__layer1_my_measure.txt", "my_class_2__layer1_my_measure.txt", etc. in the "data" directory
+# measure_set <- read_measure_set(dir = "data", class_name = "my_class", measure_name = "my_measure", i = 1, layer_A = "layer1")
+```
+
+## Plotting Data
+
+The `MHVG2MTS` package provides several functions for plotting data.
+
+### `plot_mts`
+
+This function plots a multivariate time series.
+
+
+``` r
+# Example usage:
+# mts_data <- data.frame(Time = 1:10, Series1 = rnorm(10), Series2 = rnorm(10))
+# plot_mts(mts_data, cols = c("red", "blue"))
+```
+
+### `plot_acf`
+
+This function plots the autocorrelation function of a time series.
+
+
+``` r
+# Example usage:
+# ts_data <- rnorm(100)
+# plot_acf(ts_data)
+```
+
+### `plot_ccf`
+
+This function plots the cross-correlation function of two time series.
+
+
+``` r
+# Example usage:
+# ts_a <- rnorm(100)
+# ts_b <- rnorm(100)
+# plot_ccf(ts_a, ts_b)
+```
+
+### `plot_dist`
+
+This function plots a distribution.
+
+
+``` r
+# Example usage:
+# dist_data <- data.frame(k = 1:10, value = rnorm(10), Variable = "A")
+# plot_dist(dist_data, cols = "red")
+```
+
+### `plot_boxplot_dists`
+
+This function plots a boxplot of distributions.
+
+
+``` r
+# Example usage:
+# freq_data <- data.frame(k = rep(1:5, 2), Freq = rnorm(10), Variable = rep(c("A", "B"), each = 5))
+# plot_boxplot_dists(freq_data, cols = c("red", "blue"))
+```
+
+### `plot_pointplot_dists`
+
+This function plots a point plot of distributions.
+
+
+``` r
+# Example usage:
+# freq_data <- data.frame(k = rep(1:5, 2), Freq = rnorm(10), Variable = rep(c("A", "B"), each = 5))
+# plot_pointplot_dists(freq_data, cols = c("red", "blue"))
+```
+
+### `plot_ggplot_models`
+
+This function plots boxplots by class models.
+
+
+``` r
+# Example usage:
+# data <- data.frame(feature = rnorm(10), models = rep(c("A", "B"), each = 5))
+# plot_ggplot_models(data, models = data$models, level_models = c("A", "B"), feature = "feature", title = "My Plot", cols = c("red", "blue"))
+```
+
+### `plot_pca`
+
+This function plots PCA results.
+
+
+``` r
+# Example usage:
+# pca_data <- prcomp(iris[,1:4])
+# plot_pca(pca_data, true_classes = iris$Species, ncp = 2, col = c("red", "blue", "green"))
+```
+
+### `plot_boxplot_clust`
+
+This function plots boxplots of clustering evaluation measures.
+
+
+``` r
+# Example usage:
+# df_data <- data.frame(k = rep(2:4, each = 5), Freq = rnorm(15))
+# plot_boxplot_clust(df_data)
+```
+
+### `plot_clusters`
+
+This function plots clusters.
+
+
+``` r
+# Example usage:
+# data <- iris[,1:4]
+# true_classes <- iris$Species
+# cluster_fit <- kmeans(data, 3)
+# plot_clusters(data, true_classes, cluster_fit, col = c("red", "blue", "green"))
+```
+
+### `multiplot`
+
+This function plots multiple ggplots in a grid.
+
+
+``` r
+# Example usage:
+# p1 <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) + geom_point()
+# p2 <- ggplot(iris, aes(x = Petal.Length, y = Petal.Width)) + geom_point()
+# multiplot(p1, p2, cols = 2)
+```
+
+## Sequence Analysis
+
+The `MHVG2MTS` package provides several functions for analyzing sequences.
+
+### `order_level`
+
+This function reorders a data frame by level.
+
+
+``` r
+# Example usage:
+# data <- data.frame(k = factor(c(3, 1, 2)), value = rnorm(3))
+# ordered_data <- order_level(data)
+```
+
+### `comp_distribution`
+
+This function computes the distribution of a sequence.
+
+
+``` r
+# Example usage:
+# seq_data <- c(1, 2, 2, 3, 3, 3)
+# dist <- comp_distribution(seq_data)
+```
+
+### `dist_degree`
+
+This function computes the distribution of a given sample sequence.
+
+
+``` r
+# Example usage:
+# seq_data <- list(list(data.frame(V1 = c(1, 2, 2))), list(data.frame(V1 = c(1, 1, 2))))
+# model_names <- c("A", "B")
+# distributions <- dist_degree(seq_data, model_names, n_inst = 1, col_idx = 1)
+```
+
+### `mean_dist_degree`
+
+This function computes the mean of a distribution set.
+
+
+``` r
+# Example usage:
+# dist_data <- list(data.frame(k = 1:2, A = c(0.5, 0.5), B = c(0.2, 0.8)), data.frame(k = 1:2, A = c(0.6, 0.4), B = c(0.3, 0.7)))
+# mean_dist <- mean_dist_degree(dist_data, n_inst = 2)
+```
+
+### `sd_dist_degree`
+
+This function computes the standard deviation of a distribution set.
+
+
+``` r
+# Example usage:
+# dist_data <- list(data.frame(k = 1:2, A = c(0.5, 0.5), B = c(0.2, 0.8)), data.frame(k = 1:2, A = c(0.6, 0.4), B = c(0.3, 0.7)))
+# sd_dist <- sd_dist_degree(dist_data, n_inst = 2)
+```
+
+## Simulation
+
+The `MHVG2MTS` package provides functions for simulating time series from different models.
+
+### `simulate_garch`
+
+This function simulates a bivariate GARCH process.
+
+
+``` r
+# Example usage:
+# omega <- c(0.1, 0.2)
+# alpha <- matrix(c(0.1, 0.05, 0.05, 0.1), nrow = 2)
+# beta <- matrix(c(0.8, 0.1, 0.1, 0.8), nrow = 2)
+# varcov <- matrix(c(1, 0.5, 0.5, 1), nrow = 2)
+# garch_data <- simulate_garch(t = 100, omega, alpha, beta, varcov)
+```
+
+### `simulate_var`
+
+This function simulates a bivariate VAR process.
+
+
+``` r
+# Example usage:
+# const <- c(0.5, 0.5)
+# phi <- matrix(c(0.5, 0.2, 0.1, 0.6), nrow = 2)
+# cov_mat <- matrix(c(1, 0.5, 0.5, 1), nrow = 2)
+# var_data <- simulate_var(t = 100, const, phi, cov_mat)
+```
+
+### `simulate_wn`
+
+This function simulates a bivariate white noise process.
+
+
+``` r
+# Example usage:
+# cov_mat <- matrix(c(1, 0.5, 0.5, 1), nrow = 2)
+# wn_data <- simulate_wn(t = 100, cov_mat)
+```
+
+## Utility Functions
+
+The `MHVG2MTS` package provides several utility functions for data manipulation and analysis.
+
+### `melt_variables`
+
+This function melts two data frames.
+
+
+``` r
+# Example usage:
+# df1 <- data.frame(k = 1:2, Y_1 = c(0.5, 0.5))
+# df2 <- data.frame(k = 1:2, Y_2 = c(0.2, 0.8))
+# melted_df <- melt_variables(df1, df2)
+```
+
+### `df_dists`
+
+This function creates a list of data frames with sets of degree distributions.
+
+
+``` r
+# Example usage:
+# list_data <- list(data.frame(k = 1:2, A = c(0.5, 0.5)), data.frame(k = 1:2, A = c(0.6, 0.4)))
+# model_names <- c("A")
+# dists <- df_dists(list_data, model_names, n_inst = 2, k_f = 1, k_l = 2)
+```
+
+### `freq_df`
+
+This function joins all frequencies of a data frame of distributions.
+
+
+``` r
+# Example usage:
+# df_data <- data.frame("2" = c(0.5, 0.6), "3" = c(0.5, 0.4))
+# freq <- freq_df(df_data)
+```
+
+### `draw_tables`
+
+This function generates a table of degree distributions.
+
+
+``` r
+# Example usage:
+# table_data <- data.frame(A = c(0.5, 0.5), B = c(0.2, 0.8))
+# draw_tables(table_data)
+```
+
+### `comp_pca`
+
+This function computes PCA.
+
+
+``` r
+# Example usage:
+# data <- iris[,1:4]
+# pca_results <- comp_pca(data)
+```
+
+### `pca_results`
+
+This function generates a module to compute PCA analysis.
+
+
+``` r
+# Example usage:
+# data <- iris
+# pca_res <- pca_results(data, col = c("red", "blue", "green"))
+```
+
+### `comp_clusters`
+
+This function computes k-means clustering.
+
+
+``` r
+# Example usage:
+# data_redim <- iris[,1:4]
+# k <- 3
+# true_classes <- iris$Species
+# clusters <- comp_clusters(data_redim, k, true_classes)
+```
+
+### `clustering_results`
+
+This function generates a module to compute clustering analysis.
+
+
+``` r
+# Example usage:
+# data <- iris
+# pca_res <- comp_pca(data[,1:4])
+# pca <- pca_res$pca
+# clust_res <- clustering_results(pca_res, pca, data, col = c("red", "blue", "green"), title = "Iris")
+```
+
+### `clust_det`
+
+This function determines the best number of clusters.
+
+
+``` r
+# Example usage:
+# pca_data <- iris[,1:4]
+# data <- iris
+# best_k <- clust_det(pca_data, data, title = "Iris")
+```
