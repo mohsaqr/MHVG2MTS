@@ -21,9 +21,12 @@ test_that("plot_ccf works", {
   expect_s3_class(p, "ggplot")
 })
 
-test_that("plot_dist works", {
+test_that("plot_distribution works", {
   dist_data <- data.frame(k = 1:10, value = rnorm(10), Variable = "A")
-  p <- plot_dist(dist_data, cols = "red")
+  p <- plot_distribution(dist_data, type = "line", cols = "red")
+  expect_s3_class(p, "ggplot")
+
+  p <- plot_distribution(dist_data, type = "point", cols = "red")
   expect_s3_class(p, "ggplot")
 })
 
@@ -33,11 +36,6 @@ test_that("plot_boxplot_dists works", {
   expect_s3_class(p, "ggplot")
 })
 
-test_that("plot_pointplot_dists works", {
-  freq_data <- data.frame(k = rep(1:5, 2), Freq = rnorm(10), Variable = rep(c("A", "B"), each = 5))
-  p <- plot_pointplot_dists(freq_data, cols = c("red", "blue"))
-  expect_s3_class(p, "ggplot")
-})
 
 test_that("plot_ggplot_models works", {
   data <- data.frame(feature = rnorm(10), models = rep(c("A", "B"), each = 5))
@@ -68,5 +66,5 @@ test_that("plot_clusters works", {
 test_that("multiplot works", {
   p1 <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) + geom_point()
   p2 <- ggplot(iris, aes(x = Petal.Length, y = Petal.Width)) + geom_point()
-  expect_error(multiplot(p1, p2, cols = 2), NA)
+  expect_invisible(multiplot(p1, p2, cols = 2))
 })

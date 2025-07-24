@@ -2,12 +2,10 @@
 #'
 #' @param data A data frame.
 #' @return The reordered data frame.
-#' @importFrom dplyr %>%
 #' @export
 order_level <- function(data) {
-  data$k <- as.integer(levels(data$k))
-  data <- data[order(data$k), ]
-  data$k <- as.factor(data$k)
+  data <- data[order(as.integer(levels(data$k))), ]
+  data$k <- factor(data$k, levels = sort(as.integer(levels(data$k))))
   data
 }
 
@@ -15,16 +13,15 @@ order_level <- function(data) {
 #'
 #' @param seq_data A sequence.
 #' @return A data frame with the distribution.
-#' @importFrom dplyr %>%
 #' @export
 comp_distribution <- function(seq_data) {
-  dist <- table(seq_data) / length(seq_data)
+  dist <- prop.table(table(seq_data))
 
   if (names(dist)[1] == "1") {
-    dist <- dist[2:length(dist)]
+    dist <- dist[-1]
   }
 
-  dist %>% as.data.frame.table()
+  as.data.frame(dist)
 }
 
 #' Compute the distribution of a given sample sequence
@@ -34,31 +31,27 @@ comp_distribution <- function(seq_data) {
 #' @param n_inst The number of instances.
 #' @param col_idx The column index.
 #' @return A list of data frames with the distributions.
-#' @importFrom dplyr full_join
 #' @export
-dist_degree <- function(seq_data, model_names, n_inst, col_idx) {
-  dist <- list()
-  for (m in 1:length(model_names)) {
-    dist[[m]] <- list()
-    for (i in 1:n_inst) {
-      dist[[m]][[i]] <- comp_distribution(seq_data[[m]][[i]][, col_idx])
-    }
-  }
-  names(dist) <- model_names
+dist_degree <- function(seq_data, model_names, col_idx) {
 
-  join_dist <- list()
-  for (i in 1:n_inst) {
-    join_dist[[i]] <- dist[[1]][[i]]
-    for (m in 2:length(model_names)) {
-      aux <- dist[[m]][[i]]
-      join_dist[[i]] <- full_join(join_dist[[i]], aux, by = c("seq_data"))
-    }
-  }
+  dists <- lapply(seq_data, function(model_data) {
+    lapply(model_data, function(inst_data) {
+      comp_distribution(inst_data[, col_idx])
+    })
+  })
 
-  for (i in 1:n_inst) {
-    colnames(join_dist[[i]]) <- c("k", model_names)
-    join_dist[[i]] <- order_level(join_dist[[i]])
-  }
+  n_inst <- length(dists[[1]])
+
+  join_dist <- lapply(1:n_inst, function(i) {
+
+    inst_dists <- lapply(dists, function(model_dists) {
+      model_dists[[i]]
+    })
+
+    merged_dist <- Reduce(function(x, y) merge(x, y, by = "seq_data", all = TRUE), inst_dists)
+    colnames(merged_dist) <- c("k", model_names)
+    order_level(merged_dist)
+  })
 
   join_dist
 }
@@ -68,41 +61,14 @@ dist_degree <- function(seq_data, model_names, n_inst, col_idx) {
 #' @param dist_data A list of distribution data frames.
 #' @param n_inst The number of instances.
 #' @return A data frame with the mean distribution.
-#' @importFrom dplyr %>% group_by summarise_all
 #' @export
-mean_dist_degree <- function(dist_data, n_inst) {
-  melt_dist <- dist_data[[1]]
+summarise_dist_degree <- function(dist_data, summary_fun = "mean") {
 
-  for (i in 2:n_inst) {
-    melt_dist <- rbind(melt_dist, dist_data[[i]])
-  }
+  all_data <- do.call(rbind, dist_data)
 
-  mean_dist <- melt_dist %>%
-    group_by(k) %>%
-    summarise_all(mean, na.rm = TRUE) %>%
-    as.data.frame()
+  summary_fun <- match.fun(summary_fun)
 
-  order_level(mean_dist)
-}
+  agg_data <- aggregate(. ~ k, data = all_data, FUN = summary_fun, na.rm = TRUE)
 
-#' Compute the standard deviation of a distribution set
-#'
-#' @param dist_data A list of distribution data frames.
-#' @param n_inst The number of instances.
-#' @return A data frame with the standard deviation of the distribution.
-#' @importFrom dplyr %>% group_by summarise_all
-#' @export
-sd_dist_degree <- function(dist_data, n_inst) {
-  melt_dist <- dist_data[[1]]
-
-  for (i in 2:n_inst) {
-    melt_dist <- rbind(melt_dist, dist_data[[i]])
-  }
-
-  sd_dist <- melt_dist %>%
-    group_by(k) %>%
-    summarise_all(sd, na.rm = TRUE) %>%
-    as.data.frame()
-
-  order_level(sd_dist)
+  order_level(agg_data)
 }

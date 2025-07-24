@@ -5,12 +5,13 @@
 #' @param alpha An ARCH parameter matrix in the GARCH equation.
 #' @param beta A GARCH parameter matrix in the GARCH equation.
 #' @param varcov A constant conditional correlation matrix.
+#' @param burnin The length of the burn-in period.
 #' @return A matrix with the simulated GARCH process.
 #' @importFrom ccgarch eccc.sim
 #' @export
-simulate_garch <- function(t, omega, alpha, beta, varcov) {
+simulate_garch <- function(t, omega, alpha, beta, varcov, burnin = 200) {
   res <- eccc.sim(
-    nobs = t + 200,
+    nobs = t + burnin,
     a = omega,
     A = alpha,
     B = beta,
@@ -19,5 +20,5 @@ simulate_garch <- function(t, omega, alpha, beta, varcov) {
     model = "diagonal"
   )$eps
 
-  res[201:(t + 200), ]
+  res[(burnin + 1):(t + burnin), ]
 }

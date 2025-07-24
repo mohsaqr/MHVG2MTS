@@ -21,30 +21,25 @@ test_that("dist_degree works", {
     "B" = list(data.frame(V1 = c(1, 1, 2)))
   )
   model_names <- c("A", "B")
-  distributions <- dist_degree(seq_data, model_names, n_inst = 1, col_idx = 1)
+  distributions <- dist_degree(seq_data, model_names, col_idx = 1)
   expect_type(distributions, "list")
   expect_equal(length(distributions), 1)
   expect_equal(nrow(distributions[[1]]), 2)
   expect_equal(ncol(distributions[[1]]), 3)
 })
 
-test_that("mean_dist_degree works", {
+test_that("summarise_dist_degree works", {
   dist_data <- list(
     data.frame(k = factor(1:2), A = c(0.5, 0.5), B = c(0.2, 0.8)),
     data.frame(k = factor(1:2), A = c(0.6, 0.4), B = c(0.3, 0.7))
   )
-  mean_dist <- mean_dist_degree(dist_data, n_inst = 2)
+
+  mean_dist <- summarise_dist_degree(dist_data, summary_fun = "mean")
   expect_equal(nrow(mean_dist), 2)
   expect_equal(ncol(mean_dist), 3)
   expect_equal(mean_dist$A, c(0.55, 0.45))
-})
 
-test_that("sd_dist_degree works", {
-  dist_data <- list(
-    data.frame(k = factor(1:2), A = c(0.5, 0.5), B = c(0.2, 0.8)),
-    data.frame(k = factor(1:2), A = c(0.6, 0.4), B = c(0.3, 0.7))
-  )
-  sd_dist <- sd_dist_degree(dist_data, n_inst = 2)
+  sd_dist <- summarise_dist_degree(dist_data, summary_fun = "sd")
   expect_equal(nrow(sd_dist), 2)
   expect_equal(ncol(sd_dist), 3)
 })

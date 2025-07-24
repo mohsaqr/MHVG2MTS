@@ -72,41 +72,45 @@ plot_ccf <- function(ts_a, ts_b, y_title = "", x_title = "", main_title = "", li
 
 #' Plot a distribution
 #'
-#' @param melt_data A melted data frame.
+#' @param data A data frame.
+#' @param type The type of plot, either "line" or "point".
 #' @param cols A vector of colors.
 #' @param y_title The title for the y-axis.
 #' @param x_title The title for the x-axis.
 #' @param main_title The main title for the plot.
 #' @param is_smooth A boolean indicating whether to smooth the curve.
-#' @param is_semilog A boolean indicating whether to use a semilog scale.
-#' @param is_log A boolean indicating whether to use a log-log scale.
+#' @param scale A string indicating the scale of the axes, can be "identity", "semilog-y", or "log-log".
 #' @return A ggplot object.
 #' @import ggplot2
 #' @export
-plot_dist <- function(melt_data, cols, y_title = "", x_title = "", main_title = "",
-                      is_smooth = FALSE, is_semilog = FALSE, is_log = FALSE) {
-  if (is_log) {
-    melt_data$k <- log10(as.numeric(as.character(melt_data$k)))
+plot_distribution <- function(data, type = "line", cols = NULL, y_title = "", x_title = "", main_title = "",
+                              is_smooth = FALSE, scale = "identity") {
+
+  p <- ggplot(data, aes(x = k, y = value, group = Variable, colour = Variable)) +
+    labs(x = x_title, y = y_title, title = main_title) +
+    theme_minimal()
+
+  if (type == "line") {
+    p <- p + geom_line() + geom_point()
+  } else if (type == "point") {
+    p <- p + geom_point()
   }
 
-  g <- ggplot(melt_data, aes(x = k, y = value, group = Variable)) +
-    geom_line(aes(colour = Variable)) +
-    geom_point(aes(colour = Variable)) +
-    scale_color_manual(values = cols) +
-    theme_minimal() +
-    labs(x = x_title, y = y_title, title = main_title)
-
-  if (is_semilog) {
-    g <- g + scale_y_log10()
-  } else if (is_log) {
-    g <- g + scale_y_log10()
+  if (!is.null(cols)) {
+    p <- p + scale_color_manual(values = cols)
   }
 
   if (is_smooth) {
-    g <- g + geom_smooth(aes(colour = Variable))
+    p <- p + geom_smooth(se = FALSE)
   }
 
-  g
+  if (scale == "semilog-y") {
+    p <- p + scale_y_log10()
+  } else if (scale == "log-log") {
+    p <- p + scale_y_log10() + scale_x_log10()
+  }
+
+  p
 }
 
 #' Boxplot of a dataframe of distributions
@@ -127,43 +131,6 @@ plot_boxplot_dists <- function(freq_data, cols, y_title = "", x_title = "", main
     labs(x = x_title, y = y_title, title = main_title)
 }
 
-#' Pointplot of a dataframe of distributions
-#'
-#' @param freq_data A data frame of frequencies.
-#' @param cols A vector of colors.
-#' @param y_title The title for the y-axis.
-#' @param x_title The title for the x-axis.
-#' @param main_title The main title for the plot.
-#' @param is_smooth A boolean indicating whether to smooth the curve.
-#' @param is_semilog A boolean indicating whether to use a semilog scale.
-#' @param is_log A boolean indicating whether to use a log-log scale.
-#' @return A ggplot object.
-#' @import ggplot2
-#' @export
-plot_pointplot_dists <- function(freq_data, cols, y_title = "", x_title = "", main_title = "",
-                               is_smooth = FALSE, is_semilog = FALSE, is_log = FALSE) {
-  if (is_log) {
-    freq_data$k <- log10(as.numeric(as.character(freq_data$k)))
-  }
-
-  g <- ggplot(data = freq_data, aes(y = Freq, x = k, group = Variable)) +
-    geom_point(aes(colour = Variable)) +
-    scale_color_manual(values = cols) +
-    theme_minimal() +
-    labs(x = x_title, y = y_title, title = main_title)
-
-  if (is_semilog) {
-    g <- g + scale_y_log10()
-  } else if (is_log) {
-    g <- g + scale_y_log10()
-  }
-
-  if (is_smooth) {
-    g <- g + geom_smooth(aes(colour = Variable))
-  }
-
-  g
-}
 
 #' Plot boxplots by class models
 #'
@@ -283,30 +250,14 @@ plot_clusters <- function(data, true_classes, cluster_fit, col, main_title = "Cl
 #' @param cols The number of columns in the layout.
 #' @param layout A matrix specifying the layout.
 #' @return A grid of plots.
-#' @import grid
+#' @importFrom gridExtra grid.arrange
 #' @export
 multiplot <- function(..., plotlist = NULL, cols = 1, layout = NULL) {
   plots <- c(list(...), plotlist)
-  numPlots <- length(plots)
 
-  if (is.null(layout)) {
-    layout <- matrix(seq(1, cols * ceiling(numPlots / cols)),
-      ncol = cols, nrow = ceiling(numPlots / cols)
-    )
-  }
-
-  if (numPlots == 1) {
-    print(plots[[1]])
+  if (!is.null(layout)) {
+    grid.arrange(grobs = plots, layout_matrix = layout)
   } else {
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-
-    for (i in 1:numPlots) {
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      print(plots[[i]], vp = viewport(
-        layout.pos.row = matchidx$row,
-        layout.pos.col = matchidx$col
-      ))
-    }
+    grid.arrange(grobs = plots, ncol = cols)
   }
 }
